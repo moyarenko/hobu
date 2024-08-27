@@ -1,0 +1,21 @@
+{
+  "editor.formatOnPaste": false,
+  "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.formatOnSave": true
+  },
+  "[html]": {
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.formatOnSave": true
+  },
+  "eslint.codeActionsOnSave": true,
+  "eslint.alwaysShowStatus": true,
+  "cSpell.words": ["VERIFICATOR"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "cSpell.ignoreWords": [],
+  "typescript.tsdk": "node_modules/typescript/lib"
+}
