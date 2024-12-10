@@ -4,6 +4,12 @@
   "[javascript]": {
     "editor.formatOnSave": true
   },
+  "[typescript]": {
+    "editor.formatOnSave": true
+  },
+  "[typescriptreact]": {
+    "editor.formatOnSave": true
+  },
   "[html]": {
     "editor.formatOnSave": true
   },
@@ -12,7 +18,7 @@
   },
   "eslint.codeActionsOnSave": true,
   "eslint.alwaysShowStatus": true,
-  "cSpell.words": ["VERIFICATOR"],
+  "cSpell.words": [],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },

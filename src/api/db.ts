@@ -18,7 +18,7 @@ export class IndexedDBService {
         resolve();
       };
 
-      request.onerror = (event) => {
+      request.onerror = () => {
         reject(request.error);
       };
 

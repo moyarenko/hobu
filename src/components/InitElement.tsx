@@ -1,15 +1,13 @@
 import { Flex, Spin } from 'antd';
+import { Outlet } from 'react-router-dom';
 import { LoadingOutlined } from '@ant-design/icons';
 
-import { useCategories, useTitle } from '@/hooks';
+import { useInit } from '@/hooks';
 
-export const ReportView = () => {
-  useTitle('Report view');
-  const { data, isPending, isError, error } = useCategories();
+export const InitElement = () => {
+  const isInit = useInit();
 
-  console.log('dataL ', data, isPending, isError, error);
-
-  if (isPending)
+  if (!isInit)
     return (
       <Flex
         align="center"
@@ -21,5 +19,6 @@ export const ReportView = () => {
         <Spin indicator={<LoadingOutlined spin />} size="large" />
       </Flex>
     );
-  return null;
+
+  return <Outlet />;
 };

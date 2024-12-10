@@ -1,7 +1,9 @@
 import { RouterProvider } from 'react-router-dom';
 import { ConfigProvider, theme } from 'antd';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { router } from './routes';
+const queryClient = new QueryClient();
 
 function App() {
   return (
@@ -10,7 +12,9 @@ function App() {
         algorithm: theme.darkAlgorithm,
       }}
     >
-      <RouterProvider router={router} />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
     </ConfigProvider>
   );
 }

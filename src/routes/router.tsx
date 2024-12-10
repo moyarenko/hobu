@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
 
-import { ErrorElement } from '@/components';
+import { ErrorElement, InitElement } from '@/components';
 import { ReportCreate, ReportView, Page404 } from '@/pages';
 
 import { Routes } from './types';
@@ -8,6 +8,7 @@ import { Routes } from './types';
 const routes: RouteObject[] = [
   {
     path: '/',
+    element: <InitElement />,
     errorElement: <ErrorElement />,
     children: [
       {
