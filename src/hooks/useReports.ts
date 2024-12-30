@@ -2,11 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useDB } from './useDB';
 
-export const useCategories = () => {
+export const useOrders = (filter?: Order.Filter) => {
   const db = useDB();
   return useQuery({
-    queryKey: ['categories'],
-    queryFn: () => db.getCategories(),
+    queryKey: ['orders', filter],
+    queryFn: () => db.getOrders(filter),
     initialData: [],
   });
 };

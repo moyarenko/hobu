@@ -2,7 +2,7 @@ import { useLayoutEffect, useState } from 'react';
 
 import { IndexedDBService } from '@/api/db';
 
-const DB_DATABASE = 'hobuDatabase';
+const DB_DATABASE = process.env.REACT_APP_DATABASE;
 let db: IndexedDBService | null = null;
 
 export const useInit = () => {

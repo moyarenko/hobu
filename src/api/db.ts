@@ -78,13 +78,13 @@ export class IndexedDBService {
     });
   }
 
-  updateCategory(category: Category.Item): Promise<void> {
+  updateCategory(category: Category.Item): Promise<number> {
     return this.transaction('categories', 'readwrite', (store) => {
-      return new Promise<void>((resolve, reject) => {
+      return new Promise<number>((resolve, reject) => {
         const request = store.put(category);
 
         request.onsuccess = () => {
-          resolve();
+          resolve(category.id);
         };
 
         request.onerror = () => {
@@ -152,7 +152,7 @@ export class IndexedDBService {
 
             // Фільтрація по categories
             if (filter?.categories && filter.categories.length > 0) {
-              const categoryMatch = filter.categories.some((cat) => order.categories.includes(cat));
+              const categoryMatch = filter.categories.some((cat) => order.category_id === cat);
               if (!categoryMatch) {
                 cursor.continue();
                 return;
@@ -173,13 +173,13 @@ export class IndexedDBService {
     });
   }
 
-  updateOrder(order: Order.Item): Promise<void> {
+  updateOrder(order: Order.Item): Promise<number> {
     return this.transaction('orders', 'readwrite', (store) => {
-      return new Promise<void>((resolve, reject) => {
+      return new Promise<number>((resolve, reject) => {
         const request = store.put(order);
 
         request.onsuccess = () => {
-          resolve();
+          resolve(order.id);
         };
 
         request.onerror = () => {

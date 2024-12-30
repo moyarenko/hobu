@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
 
-import { ErrorElement, InitElement } from '@/components';
+import { CategoryForm, ErrorElement, InitElement, OrderForm } from '@/components';
 import { ReportCreate, ReportView, Page404 } from '@/pages';
 
 import { Routes } from './types';
@@ -18,6 +18,16 @@ const routes: RouteObject[] = [
       {
         path: Routes.REPORT_CREATE,
         element: <ReportCreate />,
+        children: [
+          {
+            path: '',
+            element: <OrderForm />,
+          },
+          {
+            path: Routes.REPORT_CREATE_CATEGORY,
+            element: <CategoryForm />,
+          },
+        ],
       },
 
       {

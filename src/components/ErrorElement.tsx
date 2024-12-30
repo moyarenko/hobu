@@ -1,11 +1,14 @@
-import { Flex, Result } from 'antd';
+import { Alert, Grid2 as Grid } from '@mui/material';
 
 export const ErrorElement = () => (
-  <Flex justify="center" align="center" style={{ height: '100dvh' }}>
-    <Result
-      status="error"
-      title="Some Failed"
-      subTitle="Please check and modify the following information before resubmitting."
-    />
-  </Flex>
+  <Grid
+    sx={{
+      height: '100dvh',
+    }}
+    alignItems="center"
+    justifyContent="center"
+    container
+  >
+    <Alert severity="error">Some Failed.</Alert>
+  </Grid>
 );
