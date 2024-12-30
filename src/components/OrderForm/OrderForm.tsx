@@ -68,10 +68,11 @@ export const OrderForm: FC<OrderFormProps> = ({ order }) => {
     setDate(createdAt);
   }, [createdAt, setDate]);
 
-  const onSubmit = ({ amounts, category_id, created_at, ...data }: FormFields) => {
+  const onSubmit = ({ amounts, note, category_id, created_at, ...data }: FormFields) => {
     const amount = amounts?.reduce((acc, curr) => (acc += Number(curr.value)), 0) || 0;
+    note = amounts && amounts.length > 1 ? `${note} (${amounts.map(({ value }) => value).join(', ')})` : note;
     mutate(
-      { ...data, category_id: Number(category_id), amount, created_at: new Date(created_at).getTime() },
+      { ...data, note, category_id: Number(category_id), amount, created_at: new Date(created_at).getTime() },
       {
         onSuccess: () => {
           reset({
@@ -165,6 +166,7 @@ export const OrderForm: FC<OrderFormProps> = ({ order }) => {
                   <OutlinedInput
                     startAdornment={<InputAdornment position="start">₴</InputAdornment>}
                     label="Сумма"
+                    autoComplete="off"
                     {...field}
                     onChange={(e) =>
                       onChange(
