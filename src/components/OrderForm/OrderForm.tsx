@@ -21,6 +21,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
+import InvertColorsIcon from '@mui/icons-material/InvertColors';
 
 import { useCategories, useDB } from '@/hooks';
 import { ORDER_TYPES } from '@/constants';
@@ -140,8 +141,9 @@ export const OrderForm: FC<OrderFormProps> = ({ order }) => {
                     <em>Немає доступних категорій</em>
                   </MenuItem>
                 )}
-                {categories.map(({ id, name }) => (
+                {categories.map(({ id, name, color }) => (
                   <MenuItem key={id} value={id}>
+                    <InvertColorsIcon sx={{ color }} />
                     {name}
                   </MenuItem>
                 ))}
