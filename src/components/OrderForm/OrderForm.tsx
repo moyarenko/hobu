@@ -84,9 +84,14 @@ export const OrderForm: FC<OrderFormProps> = ({ order }) => {
   const createdAt = watch('created_at');
 
   useEffect(() => {
-    setSearchParams({
-      created_at: createdAt,
-    });
+    setSearchParams(
+      {
+        created_at: createdAt,
+      },
+      {
+        replace: true,
+      }
+    );
   }, [createdAt, setSearchParams]);
 
   useEffect(() => {
