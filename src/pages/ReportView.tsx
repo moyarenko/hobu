@@ -1,10 +1,10 @@
 import { Grid2 } from '@mui/material';
 
-import { useCategories, useTitle } from '@/hooks';
+import { useTitle } from '@/hooks';
 
 export const ReportView = () => {
   useTitle('Report view');
-  const { data, isPending, isError, error } = useCategories();
+  // const { data, isPending, isError, error } = useCategories();
 
   return (
     <Grid2
