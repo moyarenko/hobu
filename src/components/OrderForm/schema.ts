@@ -1,10 +1,10 @@
-import { AnyObject, array, number, object, ObjectSchema, string, StringSchema } from 'yup';
+import { AnyObject, array, number, NumberSchema, object, ObjectSchema, string, StringSchema } from 'yup';
 
 import { ORDER_TYPES } from '@/constants';
 
 export type FormFields = Omit<Order.Item, 'id' | 'amount' | 'category_id' | 'created_at'> &
   Partial<Pick<Order.Item, 'id'>> & {
-    amounts?: { value: number | string }[];
+    amounts?: { value: number | string; category_id?: number }[];
     category_id: string;
     created_at: string;
   };
@@ -18,6 +18,7 @@ export const schema: ObjectSchema<FormFields> = object().shape({
   amounts: array().of(
     object().shape({
       value: number().required(),
+      category_id: number() as NumberSchema<number, AnyObject, undefined, ''>,
     })
   ),
 });

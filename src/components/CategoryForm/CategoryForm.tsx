@@ -4,7 +4,7 @@ import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { MuiColorInput } from 'mui-color-input';
 import { useMutation } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useDB } from '@/hooks';
 import { Routes } from '@/routes';
@@ -17,6 +17,7 @@ type CategoryFormProps = {
 
 export const CategoryForm: FC<CategoryFormProps> = ({ category }) => {
   const navigate = useNavigate();
+  const { state } = useLocation();
   const { control, handleSubmit, reset } = useForm<FormFields>({
     defaultValues: {
       id: category?.id,
@@ -43,7 +44,13 @@ export const CategoryForm: FC<CategoryFormProps> = ({ category }) => {
           name: '',
           color: '',
         });
-        navigate(Routes.REPORT_CREATE);
+        const search = new URLSearchParams({
+          created_at: state.created_at,
+        });
+        navigate({
+          pathname: Routes.REPORT_CREATE,
+          search: search.toString(),
+        });
       },
     });
 

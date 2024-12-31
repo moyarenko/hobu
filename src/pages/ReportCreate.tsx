@@ -1,29 +1,39 @@
-import { Grid2, Paper, Stack, Typography } from '@mui/material';
+import { Grid2, Stack, Typography } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { Dispatch, SetStateAction, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
-import { format } from 'date-fns';
 import { PieChart } from '@mui/x-charts/PieChart';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
+import { format } from 'date-fns';
 
 import { useCategories, useTitle } from '@/hooks';
 import { useOrders } from '@/hooks/useReports';
+import { OrderCard } from '@/components/OrderCard';
 export type ReportPageContext = {
   refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<Order.Item[], Error>>;
   setDate: Dispatch<SetStateAction<string | null>>;
 };
 
 type MappedOrderCategory = {
-  id: number;
+  id: string;
   label: string;
   value: number;
+  color?: string;
+};
+
+const getSize = (x: number, y: number[]) => {
+  //y - 100
+  //res -  x
+  return (x * Math.min(...y)) / 100;
 };
 export const ReportCreate = () => {
   useTitle('Create report');
   const containerRef = useRef<HTMLDivElement>(null);
   const [date, setDate] = useState<string | null>(null);
-  const [width, setWidth] = useState(0);
+  const [size, setSize] = useState([0, 0]);
+
+  const [width, height] = size;
 
   const createdAt = useMemo<Order.Filter['createdAt'] | undefined>(() => {
     if (date) {
@@ -49,33 +59,65 @@ export const ReportCreate = () => {
     createdAt,
   });
 
-  const orderCategories = useMemo(() => {
-    const cats = new Map<number, MappedOrderCategory>([]);
-    orders.forEach(({ category_id, amount }) => {
-      const cat = cats.get(category_id);
-      if (cat) {
-        cats.set(category_id, {
-          ...cat,
-          value: amount + cat.value,
-        });
-      } else {
-        cats.set(category_id, {
-          id: category_id,
-          value: amount,
-          label: categories.find(({ id }) => id === category_id)?.name || 'DELETED',
-        });
+  const sorted = useMemo(() => orders.sort((a, b) => (a.id < b.id ? -1 : 1)), [orders]);
+
+  const { credits, debits } = useMemo(() => {
+    const credits = new Map<number, MappedOrderCategory>([]);
+    orders.forEach(({ category_id, amount, type }) => {
+      if (type === 'credit') {
+        const cat = credits.get(category_id);
+        if (cat) {
+          credits.set(category_id, {
+            ...cat,
+            value: amount + cat.value,
+          });
+        } else {
+          const findedCategory = categories.find(({ id }) => id === category_id);
+          credits.set(category_id, {
+            id: `${category_id}-${type}`,
+            value: amount,
+            label: `${findedCategory?.name || 'DELETED'} (витрата)`,
+            color: findedCategory?.color,
+          });
+        }
       }
     });
-    return Array.from(cats.values());
+    const debits = new Map<number, MappedOrderCategory>([]);
+    orders.forEach(({ category_id, amount, type }) => {
+      if (type === 'debit') {
+        const cat = debits.get(category_id);
+        if (cat) {
+          debits.set(category_id, {
+            ...cat,
+            value: amount + cat.value,
+          });
+        } else {
+          const findedCategory = categories.find(({ id }) => id === category_id);
+          debits.set(category_id, {
+            id: `${category_id}-${type}`,
+            value: amount,
+            label: `${findedCategory?.name || 'DELETED'} (дохід)`,
+            color: findedCategory?.color,
+          });
+        }
+      }
+    });
+    return {
+      credits: Array.from(credits.values()),
+      debits: Array.from(debits.values()),
+    };
   }, [categories, orders]);
 
   useLayoutEffect(() => {
-    if (containerRef.current) {
-      setWidth(containerRef.current.getBoundingClientRect().width);
-    }
+    setTimeout(() => {
+      if (containerRef.current) {
+        setSize([
+          containerRef.current.getBoundingClientRect().width,
+          containerRef.current.getBoundingClientRect().height,
+        ]);
+      }
+    }, 100);
   }, []);
-
-  console.log(orderCategories, width);
 
   return (
     <Grid2
@@ -95,67 +137,69 @@ export const ReportCreate = () => {
                 paddingBlock: spacing(3),
               })}
             >
-              <Typography variant="subtitle1">
-                Записи за <b>{!!date && format(date, 'dd.MM.yyyy')}</b>
-              </Typography>
-              {orders.map((order) => {
-                const cat = categories.find((item) => order.category_id === item.id);
-                return (
-                  <Paper
-                    sx={({ spacing }) => ({
-                      paddingBlock: spacing(0.5),
-                      paddingInline: spacing(2),
-                    })}
-                    key={order.id}
-                  >
-                    <Stack spacing={3} direction="row" justifyContent="space-between">
-                      <Typography
-                        sx={{
-                          flexBasis: '80px',
-                        }}
-                        variant="body2"
-                        color="textPrimary"
-                      >
-                        ₴{order.amount}
-                      </Typography>
-                      {}
-                      <Typography variant="body2" color={cat?.color || 'textSecondary'}>
-                        {cat?.name}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          flexBasis: '40%',
-                          flexGrow: 1,
-                        }}
-                        variant="caption"
-                      >
-                        {order.note}
-                      </Typography>
-                      {order.type === 'credit' && <KeyboardDoubleArrowDownIcon color="error" />}
-                      {order.type === 'debit' && <KeyboardDoubleArrowUpIcon color="success" />}
-                    </Stack>
-                  </Paper>
-                );
+              {sorted.map((order) => {
+                const category = categories.find((item) => order.category_id === item.id);
+                return <OrderCard key={order.id} order={order} category={category} onSuccessDelete={refetch} />;
               })}
             </Stack>
           </Grid2>
           <Grid2 ref={containerRef} size={6}>
+            <Stack
+              sx={({ spacing }) => ({
+                paddingInline: spacing(2),
+                paddingBlock: spacing(3),
+              })}
+              direction="row"
+              justifyContent="flex-end"
+              spacing={3}
+            >
+              <Typography
+                sx={{
+                  flexGrow: 1,
+                }}
+                variant="subtitle1"
+              >
+                Записи за <b>{!!date && format(date, 'dd.MM.yyyy')}</b>
+              </Typography>
+              <Stack alignItems="center" spacing={0.5} direction="row">
+                <KeyboardDoubleArrowDownIcon color="success" />
+                <Typography color="success" variant="subtitle1">
+                  Дохід <b>₴&nbsp;{debits.reduce((acc, cur) => acc + cur.value, 0)}</b>
+                </Typography>
+              </Stack>
+              <Stack alignItems="center" spacing={0.5} direction="row">
+                <KeyboardDoubleArrowUpIcon color="error" />
+                <Typography color="error" align="right" variant="subtitle1">
+                  Витрати <b>₴&nbsp;{credits.reduce((acc, cur) => acc + cur.value, 0)}</b>
+                </Typography>
+              </Stack>
+            </Stack>
             {!!width && (
               <PieChart
                 series={[
                   {
-                    data: orderCategories,
-                    innerRadius: 30,
-                    outerRadius: 100,
+                    data: credits,
+                    innerRadius: getSize(30, size),
+                    outerRadius: getSize(15, size),
+                    paddingAngle: 5,
+                    cornerRadius: 10,
+                    startAngle: -45,
+                    cx: getSize(45, size),
+                    cy: getSize(50, size),
+                  },
+                  {
+                    data: debits,
+                    innerRadius: getSize(8, size),
+                    outerRadius: getSize(10, size),
                     paddingAngle: 5,
                     cornerRadius: 5,
                     startAngle: -45,
-                    cx: 150,
-                    cy: 150,
+                    cx: getSize(45, size),
+                    cy: getSize(50, size),
                   },
                 ]}
                 width={width}
-                height={window.innerHeight * 0.5}
+                height={height}
               />
             )}
           </Grid2>
