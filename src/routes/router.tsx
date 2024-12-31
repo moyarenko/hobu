@@ -7,7 +7,7 @@ import { Routes } from './types';
 
 const routes: RouteObject[] = [
   {
-    path: '/',
+    path: process.env.PUBLIC_URL,
     element: <InitElement />,
     errorElement: <ErrorElement />,
     children: [
