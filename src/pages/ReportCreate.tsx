@@ -45,6 +45,7 @@ export const ReportCreate = () => {
 
       const to = new Date(from);
       to.setDate(to.getDate() + 1);
+      to.setMilliseconds(to.getMilliseconds() - 1);
 
       return {
         from: from.toISOString(),
