@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.js": "/hobu/static/js/main.7f8d7730.js",
+    "main.js": "/hobu/static/js/main.81f1d727.js",
     "static/js/453.75976c74.chunk.js": "/hobu/static/js/453.75976c74.chunk.js",
     "static/js/689.768b8799.js": "/hobu/static/js/689.768b8799.js",
     "index.html": "/hobu/index.html",
-    "main.7f8d7730.js.map": "/hobu/static/js/main.7f8d7730.js.map",
+    "main.81f1d727.js.map": "/hobu/static/js/main.81f1d727.js.map",
     "453.75976c74.chunk.js.map": "/hobu/static/js/453.75976c74.chunk.js.map",
     "689.768b8799.js.map": "/hobu/static/js/689.768b8799.js.map"
   },
   "entrypoints": [
     "static/js/689.768b8799.js",
-    "static/js/main.7f8d7730.js"
+    "static/js/main.81f1d727.js"
   ]
 }
