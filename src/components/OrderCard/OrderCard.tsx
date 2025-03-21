@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useDB } from '@/hooks';
 import { Routes } from '@/routes';
+import { formatUAH } from '@/helper';
 
 interface OrderCardProps {
   order: Order.Item;
@@ -103,7 +104,7 @@ export const OrderCard = ({ order, category, onSuccessDelete }: OrderCardProps) 
             variant="body2"
             color="textPrimary"
           >
-            ₴&nbsp;{order.amount}
+            {formatUAH(order.amount)}
           </Typography>
           <Typography variant="body2" color={category?.color || 'textSecondary'}>
             {category?.name || 'DELETED'}

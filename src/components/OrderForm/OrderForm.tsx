@@ -24,6 +24,7 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { useLocation, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import InvertColorsIcon from '@mui/icons-material/InvertColors';
+import { isValid } from 'date-fns';
 
 import { useCategories, useDB } from '@/hooks';
 import { ORDER_TYPES } from '@/constants';
@@ -84,19 +85,18 @@ export const OrderForm: FC<OrderFormProps> = ({ order }) => {
   const createdAt = watch('created_at');
 
   useEffect(() => {
-    setSearchParams(
-      {
-        created_at: createdAt,
-      },
-      {
-        replace: true,
-      }
-    );
-  }, [createdAt, setSearchParams]);
-
-  useEffect(() => {
-    setDate(createdAt);
-  }, [createdAt, setDate]);
+    if (isValid(createdAt)) {
+      setSearchParams(
+        {
+          created_at: createdAt,
+        },
+        {
+          replace: true,
+        }
+      );
+      setDate(createdAt);
+    }
+  }, [createdAt, setDate, setSearchParams]);
 
   useEffect(() => {
     if (state && state.order) {

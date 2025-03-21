@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { useCategories, useTitle } from '@/hooks';
 import { useOrders } from '@/hooks/useReports';
 import { OrderCard } from '@/components/OrderCard';
+import { formatUAH } from '@/helper';
 export type ReportPageContext = {
   refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<Order.Item[], Error>>;
   setDate: Dispatch<SetStateAction<string | null>>;
@@ -77,7 +78,7 @@ export const ReportCreate = () => {
           credits.set(category_id, {
             id: `${category_id}-${type}`,
             value: amount,
-            label: `${findedCategory?.name || 'DELETED'} (витрата)`,
+            label: `${findedCategory?.name || 'DELETED'} (вит.)`,
             color: findedCategory?.color,
           });
         }
@@ -97,7 +98,7 @@ export const ReportCreate = () => {
           debits.set(category_id, {
             id: `${category_id}-${type}`,
             value: amount,
-            label: `${findedCategory?.name || 'DELETED'} (дохід)`,
+            label: `${findedCategory?.name || 'DELETED'} (дох.)`,
             color: findedCategory?.color,
           });
         }
@@ -165,13 +166,13 @@ export const ReportCreate = () => {
               <Stack alignItems="center" spacing={0.5} direction="row">
                 <KeyboardDoubleArrowDownIcon color="success" />
                 <Typography color="success" variant="subtitle1">
-                  Дохід <b>₴&nbsp;{debits.reduce((acc, cur) => acc + cur.value, 0)}</b>
+                  Дохід <b>{formatUAH(debits.reduce((acc, cur) => acc + cur.value, 0))}</b>
                 </Typography>
               </Stack>
               <Stack alignItems="center" spacing={0.5} direction="row">
                 <KeyboardDoubleArrowUpIcon color="error" />
                 <Typography color="error" align="right" variant="subtitle1">
-                  Витрати <b>₴&nbsp;{credits.reduce((acc, cur) => acc + cur.value, 0)}</b>
+                  Витрати <b>{formatUAH(credits.reduce((acc, cur) => acc + cur.value, 0))}</b>
                 </Typography>
               </Stack>
             </Stack>
@@ -201,6 +202,11 @@ export const ReportCreate = () => {
                 ]}
                 width={width}
                 height={height}
+                slotProps={{
+                  legend: {
+                    hidden: width < 500,
+                  },
+                }}
               />
             )}
           </Grid2>
