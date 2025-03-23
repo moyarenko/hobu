@@ -9,7 +9,6 @@ import { Routes } from '@/routes';
 import { FiltersForm } from '@/components/FiltersForm';
 import { useOrders } from '@/hooks/useReports';
 import { OrderCard } from '@/components/OrderCard/OrderCard';
-import { formatUAH } from '@/helper';
 
 export const ReportView = () => {
   useTitle('Report view');
