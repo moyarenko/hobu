@@ -3,24 +3,41 @@ import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import EditIcon from '@mui/icons-material/Edit';
 import ArchiveIcon from '@mui/icons-material/Archive';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-import { useDB } from '@/hooks';
+import { useCategories, useDB } from '@/hooks';
 import { Routes } from '@/routes';
 import { formatUAH } from '@/helper';
 
-interface OrderCardProps {
+interface OrderCardPropsBase {
   order: Order.Item;
-  category?: Category.Item;
-  onSuccessDelete: () => void;
 }
 
-export const OrderCard = ({ order, category, onSuccessDelete }: OrderCardProps) => {
+interface OrderCardPropsWithActions extends OrderCardPropsBase {
+  onSuccessDelete: () => void;
+  canActions: true;
+}
+
+interface OrderCardPropsWithoutActions extends OrderCardPropsBase {
+  canActions?: false;
+  onSuccessDelete?: never;
+}
+
+type OrderCardProps = OrderCardPropsWithActions | OrderCardPropsWithoutActions;
+
+export const OrderCard = ({ order, onSuccessDelete, canActions = false }: OrderCardProps) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
+  const { data: categories } = useCategories();
+
+  const category = useMemo(
+    () => categories.find((item) => order.category_id === item.id),
+    [categories, order.category_id]
+  );
+
   const db = useDB();
 
   const handleToggle = () => {
@@ -72,7 +89,7 @@ export const OrderCard = ({ order, category, onSuccessDelete }: OrderCardProps) 
     mutate(order.id, {
       onSuccess: () => {
         navigate(Routes.REPORT_CREATE);
-        onSuccessDelete();
+        if (onSuccessDelete) onSuccessDelete();
       },
     });
   };
@@ -128,14 +145,18 @@ export const OrderCard = ({ order, category, onSuccessDelete }: OrderCardProps) 
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList autoFocusItem={open} onKeyDown={handleListKeyDown}>
-                  <MenuItem onClick={handleEdit} disableRipple>
-                    <EditIcon />
-                    Edit
-                  </MenuItem>
-                  <MenuItem onClick={handleArhive} disableRipple>
-                    <ArchiveIcon />
-                    Archive
-                  </MenuItem>
+                  {canActions && (
+                    <>
+                      <MenuItem onClick={handleEdit} disableRipple>
+                        <EditIcon />
+                        Edit
+                      </MenuItem>
+                      <MenuItem onClick={handleArhive} disableRipple>
+                        <ArchiveIcon />
+                        Archive
+                      </MenuItem>
+                    </>
+                  )}
                 </MenuList>
               </ClickAwayListener>
             </Paper>

@@ -24,27 +24,18 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { useLocation, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import InvertColorsIcon from '@mui/icons-material/InvertColors';
-import { isValid } from 'date-fns';
+import { isValid, toDate } from 'date-fns';
 
 import { useCategories, useDB } from '@/hooks';
 import { ORDER_TYPES } from '@/constants';
 import { ReportPageContext } from '@/pages';
 import { Routes } from '@/routes';
+import { getZeroTimeDate } from '@/helper'; // Import the function
 
 import { FormFields, schema } from './schema';
 
 type OrderFormProps = {
   order?: Order.Item;
-};
-
-const getZeroTimeDate = () => {
-  const date = new Date();
-  date.setHours(0);
-  date.setMinutes(0);
-  date.setSeconds(0);
-  date.setMilliseconds(0);
-
-  return date;
 };
 
 export const OrderForm: FC<OrderFormProps> = ({ order }) => {
@@ -85,7 +76,7 @@ export const OrderForm: FC<OrderFormProps> = ({ order }) => {
   const createdAt = watch('created_at');
 
   useEffect(() => {
-    if (isValid(createdAt)) {
+    if (isValid(toDate(createdAt))) {
       setSearchParams(
         {
           created_at: createdAt,
@@ -112,7 +103,6 @@ export const OrderForm: FC<OrderFormProps> = ({ order }) => {
 
   const onSubmit = ({ amounts, note, category_id, created_at, ...data }: FormFields) => {
     const amount = amounts?.reduce((acc, curr) => (acc += Number(curr.value)), 0) || 0;
-    console.log('submit: ', data, amount);
 
     if (!data.id)
       note = amounts && amounts.length > 1 ? `${note} (${amounts.map(({ value }) => value).join(', ')})` : note;

@@ -1,16 +1,19 @@
-import { Grid2, Stack, Typography } from '@mui/material';
-import { Outlet } from 'react-router-dom';
+import { Box, Fab, Grid2, Stack, Typography } from '@mui/material';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { Dispatch, SetStateAction, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import { PieChart } from '@mui/x-charts/PieChart';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import { format } from 'date-fns';
+import HomeIcon from '@mui/icons-material/Home';
 
 import { useCategories, useTitle } from '@/hooks';
 import { useOrders } from '@/hooks/useReports';
 import { OrderCard } from '@/components/OrderCard';
 import { formatUAH } from '@/helper';
+import { Routes } from '@/routes';
+
 export type ReportPageContext = {
   refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<Order.Item[], Error>>;
   setDate: Dispatch<SetStateAction<string | null>>;
@@ -30,6 +33,7 @@ const getSize = (x: number, y: number[]) => {
 };
 export const ReportCreate = () => {
   useTitle('Create report');
+  const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [date, setDate] = useState<string | null>(null);
   const [size, setSize] = useState([0, 0]);
@@ -139,10 +143,9 @@ export const ReportCreate = () => {
                 paddingBlock: spacing(3),
               })}
             >
-              {sorted.map((order) => {
-                const category = categories.find((item) => order.category_id === item.id);
-                return <OrderCard key={order.id} order={order} category={category} onSuccessDelete={refetch} />;
-              })}
+              {sorted.map((order) => (
+                <OrderCard key={order.id} order={order} canActions onSuccessDelete={refetch} />
+              ))}
             </Stack>
           </Grid2>
           <Grid2 ref={containerRef} size={6}>
@@ -226,6 +229,17 @@ export const ReportCreate = () => {
           }}
         />
       </Grid2>
+      <Box
+        sx={({ spacing }) => ({
+          position: 'fixed',
+          bottom: spacing(3),
+          left: spacing(3),
+        })}
+      >
+        <Fab size="large" color="primary" aria-label="home" onClick={() => navigate(Routes.REPORT)}>
+          <HomeIcon />
+        </Fab>
+      </Box>
     </Grid2>
   );
 };

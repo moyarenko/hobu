@@ -4,5 +4,10 @@
       "credit": "Витрата",
       "debit": "Дохід"
     }
+  },
+  "filters": {
+    "createdAtFrom": "Дата від",
+    "createdAtTo": "Дата до",
+    "categories": "Категорії"
   }
 }

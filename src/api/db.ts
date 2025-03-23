@@ -128,7 +128,7 @@ export class IndexedDBService {
     });
   }
 
-  getOrders(filter?: Order.Filter): Promise<Order.Item[]> {
+  getOrders(filter?: Order.Filter, sortOrder: 'asc' | 'desc' = 'asc'): Promise<Order.Item[]> {
     return this.transaction('orders', 'readonly', (store) => {
       return new Promise<Order.Item[]>((resolve, reject) => {
         const createdAtIndex = store.index('created_at');
@@ -139,11 +139,21 @@ export class IndexedDBService {
         if (filter?.createdAt) {
           const fromDate = filter.createdAt.from ? new Date(filter.createdAt.from).getTime() : undefined;
           const toDate = filter.createdAt.to ? new Date(filter.createdAt.to).getTime() : undefined;
-          createdAtRange = IDBKeyRange.bound(fromDate, toDate);
+
+          if (fromDate !== undefined && toDate !== undefined) {
+            createdAtRange = IDBKeyRange.bound(fromDate, toDate);
+          } else if (fromDate !== undefined) {
+            createdAtRange = IDBKeyRange.lowerBound(fromDate);
+          } else if (toDate !== undefined) {
+            createdAtRange = IDBKeyRange.upperBound(toDate);
+          }
         }
 
         // Якщо фільтр не вказано, отримуємо всі записи
-        const cursorRequest = createdAtRange ? createdAtIndex.openCursor(createdAtRange) : store.openCursor();
+        const direction = sortOrder === 'asc' ? 'next' : 'prev';
+        const cursorRequest = createdAtRange
+          ? createdAtIndex.openCursor(createdAtRange, direction)
+          : createdAtIndex.openCursor(null, direction);
 
         cursorRequest.onsuccess = () => {
           const cursor = cursorRequest.result;
