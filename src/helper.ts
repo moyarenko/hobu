@@ -16,3 +16,7 @@ export const getZeroTimeDate = () => {
 
   return date;
 };
+
+export const getSize = (x: number, y: number[]) => {
+  return (x * Math.min(...y)) / 100;
+};

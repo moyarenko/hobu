@@ -11,7 +11,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import { useCategories, useTitle } from '@/hooks';
 import { useOrders } from '@/hooks/useReports';
 import { OrderCard } from '@/components/OrderCard';
-import { formatUAH } from '@/helper';
+import { formatUAH, getSize } from '@/helper';
 import { Routes } from '@/routes';
 
 export type ReportPageContext = {
@@ -19,18 +19,6 @@ export type ReportPageContext = {
   setDate: Dispatch<SetStateAction<string | null>>;
 };
 
-type MappedOrderCategory = {
-  id: string;
-  label: string;
-  value: number;
-  color?: string;
-};
-
-const getSize = (x: number, y: number[]) => {
-  //y - 100
-  //res -  x
-  return (x * Math.min(...y)) / 100;
-};
 export const ReportCreate = () => {
   useTitle('Create report');
   const navigate = useNavigate();

@@ -128,7 +128,7 @@ export class IndexedDBService {
     });
   }
 
-  getOrders(filter?: Order.Filter, sortOrder: 'asc' | 'desc' = 'asc'): Promise<Order.Item[]> {
+  getOrders(filter?: Order.Filter, sortOrder: 'asc' | 'desc' = 'desc'): Promise<Order.Item[]> {
     return this.transaction('orders', 'readonly', (store) => {
       return new Promise<Order.Item[]>((resolve, reject) => {
         const createdAtIndex = store.index('created_at');
