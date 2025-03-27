@@ -165,74 +165,93 @@ export const ReportView = () => {
   }, []);
 
   return (
-    <Grid2
-      container
-      direction="column"
-      wrap="nowrap"
+    <Box
       sx={{
+        display: 'grid',
+        gridTemplateAreas: `
+          'filter filter filter'
+          'orders statistics statistics'
+        `,
+        gridTemplateColumns: '1fr 1fr 1fr',
+        gap: 2,
         height: '100dvh',
+        overflow: 'hidden',
       }}
     >
       <Grid2
         sx={{
-          height: 'auto',
+          gridArea: 'filter',
         }}
       >
         <FiltersForm onSubmit={handleFiltersSubmit} />
       </Grid2>
-      <Grid2 container direction="row">
-        <ScrolledBox flexGrow={1} size={4}>
-          {orders.map((order, index) => {
-            const showDateHeader = index === 0 || orders[index - 1].created_at !== order.created_at;
-            return (
-              <div key={order.id}>
-                {showDateHeader && (
-                  <Typography
-                    color="textSecondary"
-                    fontStyle="italic"
-                    fontWeight="bold"
-                    variant="subtitle1"
-                    sx={{ mt: 2, mb: 1, ml: 2 }}
-                  >
-                    {format(new Date(order.created_at), 'dd.MM.yyyy')}
-                  </Typography>
-                )}
-                <OrderCard order={order} />
-              </div>
-            );
-          })}
-        </ScrolledBox>
-        <Grid2 flexGrow={1} sx={{ p: 2 }} size={8} container direction={'column'}>
-          <Typography variant="h6">Загальна статистика</Typography>
-          <Grid2 size={12} gap={2} container>
-            <Paper sx={{ p: 2, flexGrow: 1 }}>
-              <Stack alignItems="center" spacing={0.5} direction="row">
-                <KeyboardDoubleArrowDownIcon color="success" />
-                <Typography color="success" variant="body1">
-                  Доходи: <b>{formatUAH(statistics.debit)}</b>
+      <ScrolledBox
+        sx={{
+          gridArea: 'orders',
+        }}
+        container
+        direction="column"
+        wrap="nowrap"
+      >
+        {orders.map((order, index) => {
+          const showDateHeader = index === 0 || orders[index - 1].created_at !== order.created_at;
+          return (
+            <div key={order.id}>
+              {showDateHeader && (
+                <Typography
+                  color="textSecondary"
+                  fontStyle="italic"
+                  fontWeight="bold"
+                  variant="subtitle1"
+                  sx={{ mt: 2, mb: 1, ml: 2 }}
+                >
+                  {format(new Date(order.created_at), 'dd.MM.yyyy')}
                 </Typography>
-              </Stack>
-            </Paper>
-            <Paper sx={{ p: 2, flexGrow: 1 }}>
-              <Stack alignItems="center" spacing={0.5} direction="row">
-                <KeyboardDoubleArrowUpIcon color="error" />
-                <Typography color="error" variant="body1">
-                  Витрати: <b>{formatUAH(statistics.credit)}</b>
-                </Typography>
-              </Stack>
-            </Paper>
-            <Paper sx={{ p: 2, flexGrow: 1 }}>
-              <Typography color="warning" variant="body1">
-                Загальна сума: <b>{formatUAH(statistics.total)}</b>
+              )}
+              <OrderCard order={order} />
+            </div>
+          );
+        })}
+      </ScrolledBox>
+      <Grid2 sx={{ p: 2, gridArea: 'statistics' }} size={8} container direction={'column'}>
+        <Typography variant="h6">Загальна статистика</Typography>
+        <Grid2 size={12} gap={2} container>
+          <Paper sx={{ p: 2, flexGrow: 1 }}>
+            <Stack alignItems="center" spacing={0.5} direction="row">
+              <KeyboardDoubleArrowDownIcon color="success" />
+              <Typography color="success" variant="body1">
+                Доходи: <b>{formatUAH(statistics.debit)}</b>
               </Typography>
-            </Paper>
-          </Grid2>
-          <Typography variant="h6">По категоріям</Typography>
-          <Grid2 size={12} gap={2} container>
+            </Stack>
+          </Paper>
+          <Paper sx={{ p: 2, flexGrow: 1 }}>
+            <Stack alignItems="center" spacing={0.5} direction="row">
+              <KeyboardDoubleArrowUpIcon color="error" />
+              <Typography color="error" variant="body1">
+                Витрати: <b>{formatUAH(statistics.credit)}</b>
+              </Typography>
+            </Stack>
+          </Paper>
+          <Paper sx={{ p: 2, flexGrow: 1 }}>
+            <Typography color="warning" variant="body1">
+              Загальна сума: <b>{formatUAH(statistics.total)}</b>
+            </Typography>
+          </Paper>
+        </Grid2>
+        <Typography variant="h6">По категоріям</Typography>
+        <Grid2 size={12} gap={2}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+              gridTemplateRows: 'min-content',
+              gap: 2,
+            }}
+          >
             {Object.values(statistics.average)
               .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
               .map(({ category, value }) => (
-                <Paper key={category.id} sx={{ p: 2, flex: 1 }}>
+                <Paper key={category.id} sx={{ p: 2 }}>
                   <Typography variant="body1" component="div">
                     <Stack alignItems="center" spacing={0.5} direction="row">
                       {value > 0 ? (
@@ -247,47 +266,46 @@ export const ReportView = () => {
                   </Typography>
                 </Paper>
               ))}
-          </Grid2>
-          <Grid2 flexGrow={1} size={12} ref={containerRef}>
-            {!!width && (
-              <PieChart
-                series={[
-                  {
-                    data: credits,
-                    innerRadius: getSize(30, size),
-                    outerRadius: getSize(15, size),
-                    paddingAngle: 5,
-                    cornerRadius: 10,
-                    startAngle: -45,
-                    cx: getSize(45, size),
-                    cy: getSize(50, size),
-                    valueFormatter: ({ value }) => formatUAH(value),
-                  },
-                  {
-                    data: debits,
-                    innerRadius: getSize(8, size),
-                    outerRadius: getSize(10, size),
-                    paddingAngle: 5,
-                    cornerRadius: 5,
-                    startAngle: -45,
-                    cx: getSize(45, size),
-                    cy: getSize(50, size),
-                    valueFormatter: ({ value }) => formatUAH(value),
-                  },
-                ]}
-                width={width}
-                height={height}
-                slotProps={{
-                  legend: {
-                    hidden: width < 500,
-                  },
-                }}
-              />
-            )}
-          </Grid2>
+          </Box>
+        </Grid2>
+        <Grid2 flexGrow={1} size={12} ref={containerRef}>
+          {!!width && (
+            <PieChart
+              series={[
+                {
+                  data: credits,
+                  innerRadius: getSize(30, size),
+                  outerRadius: getSize(15, size),
+                  paddingAngle: 5,
+                  cornerRadius: 10,
+                  startAngle: -45,
+                  cx: getSize(45, size),
+                  cy: getSize(50, size),
+                  valueFormatter: ({ value }) => formatUAH(value),
+                },
+                {
+                  data: debits,
+                  innerRadius: getSize(8, size),
+                  outerRadius: getSize(10, size),
+                  paddingAngle: 5,
+                  cornerRadius: 5,
+                  startAngle: -45,
+                  cx: getSize(45, size),
+                  cy: getSize(50, size),
+                  valueFormatter: ({ value }) => formatUAH(value),
+                },
+              ]}
+              width={width}
+              height={height}
+              slotProps={{
+                legend: {
+                  hidden: width < 500,
+                },
+              }}
+            />
+          )}
         </Grid2>
       </Grid2>
-
       <Box
         sx={({ spacing }) => ({
           position: 'fixed',
@@ -299,7 +317,7 @@ export const ReportView = () => {
           <AddIcon />
         </Fab>
       </Box>
-    </Grid2>
+    </Box>
   );
 };
 
