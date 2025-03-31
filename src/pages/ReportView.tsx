@@ -3,9 +3,10 @@ import AddIcon from '@mui/icons-material/Add';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { format } from 'date-fns';
-import { PieChart } from '@mui/x-charts';
+import { BarChart, PieChart } from '@mui/x-charts';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
+import { DatasetType } from '@mui/x-charts/internals';
 
 import { useCategories, useTitle } from '@/hooks';
 import { Routes } from '@/routes';
@@ -144,6 +145,43 @@ export const ReportView = () => {
     };
   }, [categories, orders]);
 
+  const monthStatistic = useMemo(() => {
+    type MonthStatisricValue = {
+      category: string;
+      value: number;
+    };
+    const months = new Map<string, Map<number, MonthStatisricValue>>();
+    orders.forEach(({ category_id, created_at, amount, type }) => {
+      const month_id = format(new Date(created_at), 'yyyy-MM');
+      const month = months.get(month_id) || new Map([]);
+      const cat =
+        month?.get(category_id) ||
+        ((): MonthStatisricValue => {
+          const findedCategory = categories.find(({ id }) => id === category_id);
+          return {
+            value: 0,
+            category: findedCategory?.name || 'DELETED',
+          };
+        })();
+
+      cat.value = type === 'credit' ? cat.value + amount : cat.value - amount;
+      month.set(category_id, cat);
+      months.set(month_id, month);
+    });
+    const dataset: DatasetType = [];
+    months.forEach((value, key) => {
+      const data: Record<string, number | string> = {
+        month: key,
+      };
+      value.forEach((cat) => {
+        data[cat.category] = cat.value;
+      });
+      dataset.push(data);
+    });
+
+    return dataset.sort((a, b) => (a as any).month.replace('-', '') - (b as any).month.replace('-', ''));
+  }, [categories, orders]);
+
   const handleFiltersSubmit = (data: Order.Filter) => {
     const params: any = {};
     if (data.createdAt?.from) params.createdAtFrom = data.createdAt.from;
@@ -158,7 +196,8 @@ export const ReportView = () => {
       if (containerRef.current) {
         setSize([
           containerRef.current.getBoundingClientRect().width,
-          containerRef.current.getBoundingClientRect().height,
+          //containerRef.current.getBoundingClientRect().height,
+          600,
         ]);
       }
     }, 100);
@@ -188,6 +227,7 @@ export const ReportView = () => {
       <ScrolledBox
         sx={{
           gridArea: 'orders',
+          p: 1,
         }}
         container
         direction="column"
@@ -213,7 +253,7 @@ export const ReportView = () => {
           );
         })}
       </ScrolledBox>
-      <Grid2 sx={{ p: 2, gridArea: 'statistics' }} size={8} container direction={'column'}>
+      <ScrolledBox sx={{ p: 1, gridArea: 'statistics' }} size={8} container wrap="nowrap" direction="column">
         <Typography variant="h6">Загальна статистика</Typography>
         <Grid2 size={12} gap={2} container>
           <Paper sx={{ p: 2, flexGrow: 1 }}>
@@ -270,42 +310,65 @@ export const ReportView = () => {
         </Grid2>
         <Grid2 flexGrow={1} size={12} ref={containerRef}>
           {!!width && (
-            <PieChart
-              series={[
-                {
-                  data: credits,
-                  innerRadius: getSize(30, size),
-                  outerRadius: getSize(15, size),
-                  paddingAngle: 5,
-                  cornerRadius: 10,
-                  startAngle: -45,
-                  cx: getSize(45, size),
-                  cy: getSize(50, size),
-                  valueFormatter: ({ value }) => formatUAH(value),
-                },
-                {
-                  data: debits,
-                  innerRadius: getSize(8, size),
-                  outerRadius: getSize(10, size),
-                  paddingAngle: 5,
-                  cornerRadius: 5,
-                  startAngle: -45,
-                  cx: getSize(45, size),
-                  cy: getSize(50, size),
-                  valueFormatter: ({ value }) => formatUAH(value),
-                },
-              ]}
-              width={width}
-              height={height}
-              slotProps={{
-                legend: {
-                  hidden: width < 500,
-                },
-              }}
-            />
+            <>
+              <PieChart
+                series={[
+                  {
+                    data: credits,
+                    innerRadius: getSize(30, size),
+                    outerRadius: getSize(15, size),
+                    paddingAngle: 5,
+                    cornerRadius: 10,
+                    startAngle: -45,
+                    cx: getSize(45, size),
+                    cy: getSize(50, size),
+                    valueFormatter: ({ value }) => formatUAH(value),
+                  },
+                  {
+                    data: debits,
+                    innerRadius: getSize(8, size),
+                    outerRadius: getSize(10, size),
+                    paddingAngle: 5,
+                    cornerRadius: 5,
+                    startAngle: -45,
+                    cx: getSize(45, size),
+                    cy: getSize(50, size),
+                    valueFormatter: ({ value }) => formatUAH(value),
+                  },
+                ]}
+                width={width}
+                height={height}
+                slotProps={{
+                  legend: {
+                    hidden: width < 500,
+                  },
+                }}
+              />
+              <BarChart
+                dataset={monthStatistic}
+                series={categories.map(({ name }) => ({
+                  dataKey: name,
+                  label: name,
+                  valueFormatter: (value) => (value ? formatUAH(value) : null),
+                }))}
+                xAxis={[
+                  {
+                    scaleType: 'band',
+                    dataKey: 'month',
+                  },
+                ]}
+                width={width}
+                height={height}
+                slotProps={{
+                  legend: {
+                    hidden: width < 500,
+                  },
+                }}
+              />
+            </>
           )}
         </Grid2>
-      </Grid2>
+      </ScrolledBox>
       <Box
         sx={({ spacing }) => ({
           position: 'fixed',
