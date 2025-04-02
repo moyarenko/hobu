@@ -346,9 +346,10 @@ export const ReportView = () => {
               />
               <BarChart
                 dataset={monthStatistic}
-                series={categories.map(({ name }) => ({
+                series={categories.map(({ name, color }) => ({
                   dataKey: name,
                   label: name,
+                  color: color,
                   valueFormatter: (value) => (value ? formatUAH(value) : null),
                 }))}
                 xAxis={[
