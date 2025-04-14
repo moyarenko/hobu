@@ -13,6 +13,7 @@ import { formatUAH } from '@/helper';
 
 interface OrderCardPropsBase {
   order: Order.Item;
+  hightlights?: Set<number>;
 }
 
 interface OrderCardPropsWithActions extends OrderCardPropsBase {
@@ -27,7 +28,7 @@ interface OrderCardPropsWithoutActions extends OrderCardPropsBase {
 
 type OrderCardProps = OrderCardPropsWithActions | OrderCardPropsWithoutActions;
 
-export const OrderCard = ({ order, onSuccessDelete, canActions = false }: OrderCardProps) => {
+export const OrderCard = ({ order, hightlights, onSuccessDelete, canActions = false }: OrderCardProps) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
@@ -113,13 +114,14 @@ export const OrderCard = ({ order, onSuccessDelete, canActions = false }: OrderC
         ref={anchorRef}
         onClick={handleToggle}
       >
-        <Stack spacing={3} direction="row" justifyContent="space-between">
+        <Stack spacing={3} direction="row" alignItems="flex-start" justifyContent="space-between">
           <Typography
             sx={{
               flexBasis: '80px',
             }}
             variant="body2"
             color="textPrimary"
+            bgcolor={hightlights && hightlights.has(Number(order.amount.toFixed(2))) ? 'Highlight' : 'initial'}
           >
             {formatUAH(order.amount)}
           </Typography>

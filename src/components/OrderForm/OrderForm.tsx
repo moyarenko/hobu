@@ -1,5 +1,5 @@
 import { DatePicker } from '@mui/x-date-pickers';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useRef } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import {
   Box,
@@ -40,6 +40,7 @@ type OrderFormProps = {
 
 export const OrderForm: FC<OrderFormProps> = ({ order }) => {
   const { t } = useTranslation();
+  const ammountsRef = useRef('');
   const navigate = useNavigate();
   const { state } = useLocation();
   const db = useDB();
@@ -62,7 +63,7 @@ export const OrderForm: FC<OrderFormProps> = ({ order }) => {
     resolver: yupResolver(schema),
   });
 
-  const { refetch, setDate } = useOutletContext<ReportPageContext>();
+  const { refetch, setDate, setHightlightedAmounts } = useOutletContext<ReportPageContext>();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -74,7 +75,7 @@ export const OrderForm: FC<OrderFormProps> = ({ order }) => {
   });
 
   const createdAt = watch('created_at');
-
+  const amounts = watch('amounts');
   useEffect(() => {
     if (isValid(toDate(createdAt))) {
       setSearchParams(
@@ -165,6 +166,24 @@ export const OrderForm: FC<OrderFormProps> = ({ order }) => {
         },
       }
     );
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (amounts) {
+        const ammountsForHighlight = amounts.filter(({ value }) => !!value).map(({ value }) => Number(value));
+        const hash = ammountsForHighlight.join('');
+        if (ammountsRef.current !== hash) {
+          setHightlightedAmounts(ammountsForHighlight);
+          ammountsRef.current = hash;
+        }
+      }
+    }, 500);
+
+    return () => {
+      clearInterval(intervalId);
+      setHightlightedAmounts([]);
+    };
+  }, [amounts, setHightlightedAmounts]);
 
   return (
     <Stack spacing={2}>

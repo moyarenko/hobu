@@ -17,6 +17,7 @@ import { Routes } from '@/routes';
 export type ReportPageContext = {
   refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<Order.Item[], Error>>;
   setDate: Dispatch<SetStateAction<string | null>>;
+  setHightlightedAmounts: Dispatch<SetStateAction<number[]>>;
 };
 
 export const ReportCreate = () => {
@@ -24,9 +25,12 @@ export const ReportCreate = () => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [date, setDate] = useState<string | null>(null);
+  const [hightlightedAmounts, setHightlightedAmounts] = useState<number[]>([]);
   const [size, setSize] = useState([0, 0]);
 
   const [width, height] = size;
+
+  const hightlightedAmountsSet = useMemo(() => new Set<number>(hightlightedAmounts), [hightlightedAmounts]);
 
   const createdAt = useMemo<Order.Filter['createdAt'] | undefined>(() => {
     if (date) {
@@ -132,7 +136,13 @@ export const ReportCreate = () => {
               })}
             >
               {sorted.map((order) => (
-                <OrderCard key={order.id} order={order} canActions onSuccessDelete={refetch} />
+                <OrderCard
+                  hightlights={hightlightedAmountsSet}
+                  key={order.id}
+                  order={order}
+                  canActions
+                  onSuccessDelete={refetch}
+                />
               ))}
             </Stack>
           </Grid2>
@@ -214,6 +224,7 @@ export const ReportCreate = () => {
           context={{
             refetch,
             setDate,
+            setHightlightedAmounts,
           }}
         />
       </Grid2>
